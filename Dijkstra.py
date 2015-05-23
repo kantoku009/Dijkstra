@@ -13,16 +13,30 @@ class Node(object):
 	@brief	ノード クラス.
 	"""
 
-	def __init__(self, i_X, i_Y):
+	def __init__(self):
 		"""
 		@brief	ノードの初期化.
 		"""
-		self._x = i_X
-		self._y = i_Y
-		self._edgeList = []
-		self._cost = -1
-		self._toGoal = None
-	
+		self._x = 0				#ノードX座標.
+		self._y = 0				#ノードY座標.
+		self._edgeList = []		#接続されているノード.接続にはEdgeクラスを使用する.
+		self._cost = -1			#現ノードからゴールまでのコスト.
+		self._toGoal = None		#ゴールまで至る次のノード.
+
+	def __str__(self):
+		theStr = "Node"
+		if(self.__DEBUG__):
+			theStr = theStr + "\n"
+			theStr = "%s\t (x y)=(%d %d)"%(self.x, self.y)
+			theStr = "%s\t edge=%s"%(self._edgeList)
+			theStr = "%s\t cost=%d"%(self.cost)
+			theStr = "%s\t toGoal=%s"%(self._toGoal)
+		return theStr
+
+	def __repr__(self):
+		# Return a string representation.
+		return "<Node>"
+
 	def __del__(self):
 		"""
 		@brief	
@@ -108,9 +122,9 @@ class Node(object):
 	
 	def distance(self, i_Node):
 		"""
-		@brief	Nodeの距離を計算する.
+		@brief	Node間の距離を計算する.
 		"""
-		theLen = (self._x-i_Node._x)*(self._x-i_Node._x) + (self._y-i_Node._y)*(self._y-i_Node._y)
+		theLen = (self.x-i_Node.x)*(self.x-i_Node.x) + (self.y-i_Node.y)*(self.y-i_Node.y)
 		return math.sqrt(theLen)
 
 
@@ -159,13 +173,13 @@ class Dijkstra(object):
 		if(self.__DEBUG__): print("Dijkstra.goal:[%2d %2d]")%(self._goal.x, self._goal.y)
 
 	@property
-	def size(self):
+	def numNode(self):
 		"""
 		@brief	ノード数を取得.
 		"""
 		return len(self._nodeList)
 
-	def get_node_form_point(self, i_X, i_Y):
+	def get_node_from_point(self, i_X, i_Y):
 		"""
 		@brief	座標を指定してノードを取得.
 		"""
@@ -253,7 +267,6 @@ class Dijkstra(object):
 		if( (None==self.start) or (None==self.goal) ): return
 		if(self.__DEBUG__): print("Dijkstra.search_root: start")
 
-
 		#検索第一階層のノードリスト.
 		theCurrentLevel = []
 		#検索第二階層のノードリスト.
@@ -283,9 +296,7 @@ class Dijkstra(object):
 					theNextLevel.append(theEdge.node)
 
 			#リストを入れ替えて次の階層を検索する.
-			theSwapTemp = theCurrentLevel
 			theCurrentLevel = theNextLevel
-			theNextLevel = theSwapTemp
 			theNextLevel = []
 
 		#探索終了.
@@ -322,37 +333,88 @@ if __name__ == "__main__":
 		def tearDown(self):
 			pass
 		def test_create(self):
-			theNode = Node(0, 0)
+			theNode = Node()
 			self.assertEqual(0, theNode.x)
 			self.assertEqual(0, theNode.y)
 			self.assertEqual([], theNode.get_edge_list())
 			self.assertEqual(-1, theNode.cost)
 			self.assertEqual(None, theNode.toGoal)
+		def test_reset(self):
+			"""
+			@brief	Node.reset()のテストケース.
+			@note	TBA.未着手.
+			"""
+			pass
 		def test_connect_node(self):
-			theNode1 = Node(0, 0)
-			theNode2 = Node(0, 1)
+			"""
+			@brief	Node.connect_node()のテストケース.
+			@note	2つのノードが接続できていればOK.
+			@note	2つのノードのコストが1であればOK. （初期値は1）
+			"""
+			#前処理. Nodeクラスを2個生成し, 接続する.
+			theNode1 = Node()
+			theNode1.x = 0
+			theNode1.y = 0
+			theNode2 = Node()
+			theNode2.x = 0
+			theNode2.y = 0
 			theNode1.connect_node(theNode2, 1)
+			#2個のNodeが接続されていることを確認.
 			theEdgeList = theNode1.get_edge_list()
 			self.assertEqual(theNode2, theEdgeList[0].node)
+			#2個のNode間のコストが1であることを確認.
 			self.assertEqual(1, theEdgeList[0].cost)
 		def test_set_among_node_cost(self):
-			theNode1 = Node(0, 0)
-			theNode2 = Node(0, 1)
+			"""
+			@brief	Node.set_among_node_cost()のテストケース.
+			@note	2つのNode間のコストが変更できていればOK.
+			"""
+			#前処理. Nodeクラスを2個生成し, 接続する.
+			theNode1 = Node()
+			theNode1.x = 0
+			theNode1.y = 0
+			theNode2 = Node()
+			theNode2.x = 0
+			theNode2.y = 1
 			theNode1.connect_node(theNode2, 1)
+			#接続されているNode間のコストを変更.
 			theNode1.set_among_node_cost(theNode2, 2)
+			#Node間のコストが変更されていることを確認.
 			theEdgeList = theNode1.get_edge_list()
 			self.assertEqual(2, theEdgeList[0].cost)
 		def test_remove_connect(self):
-			theNode1 = Node(0, 0)
-			theNode2 = Node(0, 1)
+			"""
+			@brief	Node.remove_connect()のテストケース.
+			@note	接続したノードが削除できていればOK.
+			"""
+			#前処理. Nodeクラスを2個生成し, 接続する.
+			theNode1 = Node()
+			theNode1.x = 0
+			theNode1.y = 0
+			theNode2 = Node()
+			theNode2.x = 0
+			theNode2.y = 1
 			theNode1.connect_node(theNode2, 1)
+			#Nodeの接続を削除.
 			theNode1.remove_connect(theNode2)
+			#Nodeの接続が削除されている事を確認.
 			theEdgeList = theNode1.get_edge_list()
 			self.assertEqual([], theEdgeList)
 		def test_distance(self):
-			theNode1 = Node(0, 0)
-			theNode2 = Node(0, 1)
+			"""
+			@brief	Node.distance()のテストケース.
+			@note	ノード間の距離が計算できていればOK.
+			"""
+			#前処理. Nodeクラスを2個生成.
+			theNode1 = Node()
+			theNode1.x = 0
+			theNode1.y = 0
+			theNode2 = Node()
+			theNode2.x = 0
+			theNode2.y = 1
+			#2つのNode間の距離を計算.
 			theDistance = theNode1.distance(theNode2)
+			#2つのNode間の距離を確認. ※(0,0)と(0,1)の距離.
 			self.assertEqual(1, theDistance)
 
 	class TestCaseDijkstra(unittest.TestCase):
@@ -363,6 +425,89 @@ if __name__ == "__main__":
 			pass
 		def tearDown(self):
 			pass
+		def test_create(self):
+			"""
+			@brief	Dijkstraの生成 テストケース.
+			@note	Dijkstra.startがNoneならばOK.
+			@note	Dijkstra.goalがNoneならばOK.
+			@note	Dijkstra.sizeが0ならばOK. （登録されているノードが0）.
+			"""
+			#前処理. Dijkstraクラスを生成.
+			theDijkstra = Dijkstra()
+			#Dijkstra.startがNoneであることを確認.
+			self.assertEqual(None, theDijkstra.start)
+			#Dijkstra.goalがNoneであることを確認.
+			self.assertEqual(None, theDijkstra.goal)
+			#Dijkstra.sizeが0であることを確認.　（Nodeが登録されていない事を確認）.
+			self.assertEqual(0, theDijkstra.numNode)
+		def test_add_node(self):
+			"""
+			@brief	Dijkstra.add_node()のテストケース.
+			@note	ダイクストラにノードを1つ追加し, 追加されているノード数が1であればOK.
+			"""
+			#前処理.
+			theDijkstra = Dijkstra()
+			theNode = Node()
+			#ダイクストラにノードを追加.
+			theDijkstra.add_node(theNode)
+			#ダイクストラに追加されているノードが1である事を確認.
+			self.assertEqual(1, theDijkstra.numNode)
+		def test_node_from_point(self):
+			"""
+			@brief	Dijkstra.get_node_from_point()のテストケース.
+			@note	TBA.未着手.
+			"""
+			pass
+		def test_node_from_index(self):
+			"""
+			@brief	Dijkstra.get_node_from_index()のテストケース.
+			@note	TBA.未着手.
+			"""
+			pass
+		def test_get_index(self):
+			"""
+			@brief	Dijkstra.get_index()のテストケース.
+			@note	TBA.未着手.
+			"""
+			pass
+		def test_celar(self):
+			"""
+			@brief	Dijkstra.clear()のテストケース.
+			@note	TBA.未着手.
+			"""
+			pass
+		def test_remove_node(self):
+			"""
+			@brief	Dijkstra.remove_node()のテストケース.
+			@note	TBA.未着手.
+			"""
+			pass
+		def test_remove_connect(self):
+			"""
+			@brief	Dijkstra.remove_connect()のテストケース.
+			@note	TBA.未着手.
+			"""
+			pass
+		def test_connect_node(self):
+			"""
+			@brief	Dijkstra.connect_node()のテストケース.
+			@note	TBA.未着手.
+			"""
+			pass
+		def test_reset_node(self):
+			"""
+			@brief	Dijkstra.reset_node()のテストケース.
+			@note	TBA.未着手.
+			"""
+			pass
+		def test_search_root(self):
+			"""
+			@brief	Dijkstra.search_root()のテストケース.
+			@note	TBA.未着手.
+			"""
+			pass
+
+
 	
 	#ユニットテスト実行.
 	unittest.main()
