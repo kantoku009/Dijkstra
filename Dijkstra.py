@@ -5,13 +5,13 @@
 # ダイクストラ法による最短ルートの求めかた
 # http://www.sousakuba.com/Programming/algo_root.html
 
-import sys
 import math
 
 class Node(object):
 	"""
 	@brief	ノード クラス.
 	"""
+	__DEBUG__ = False
 
 	def __init__(self):
 		"""
@@ -24,7 +24,7 @@ class Node(object):
 		self._toGoal = None		#ゴールまで至る次のノード.
 
 	def __str__(self):
-		theStr = "Node"
+		theStr = "Node[%d %d]"%(self.x, self.y)
 		if(self.__DEBUG__):
 			theStr = theStr + "\n"
 			theStr = "%s\t (x y)=(%d %d)"%(self.x, self.y)
@@ -179,6 +179,28 @@ class Dijkstra(object):
 		"""
 		return len(self._nodeList)
 
+	def add_node(self, i_Node):
+		"""
+		@brief	ノードを追加.
+		"""
+		self._nodeList.append(i_Node)
+
+	def connect_node(self, i_Node1, i_Node2):
+		"""
+		@brief	2点間のノードを接続.
+		"""
+		#ノードが追加されていなければ, 追加する.
+		if(not (i_Node1 in self._nodeList) ): self.add_node(i_Node1)
+		if(not (i_Node2 in self._nodeList) ): self.add_node(i_Node2)
+
+		#コスト=距離計算.
+		theCost = int(i_Node1.distance(i_Node2))
+
+		#接続.
+		i_Node1.connect_node(i_Node2, theCost)
+		i_Node2.connect_node(i_Node1, theCost)
+
+
 	def get_node_from_point(self, i_X, i_Y):
 		"""
 		@brief	座標を指定してノードを取得.
@@ -198,19 +220,13 @@ class Dijkstra(object):
 
 	def get_index(self, i_Node):
 		"""
-		@brief	ノードがリストのの何番目か
+		@brief	ノードがリスト何番目か.
 		@note	0オリジン. Nodeが見つけれなかった場合-1.
 		"""
 		for theIndex in range(0, len(self._nodeList)):
 			if(i_Node == self._nodeList[theIndex]): return theIndex
 
 		return -1
-
-	def add_node(self, i_Node):
-		"""
-		@brief	ノードを追加.
-		"""
-		self._nodeList.append(i_Node)
 
 	def clear(self):
 		"""
@@ -236,17 +252,6 @@ class Dijkstra(object):
 		i_Node1.remove_connect(i_Node2)
 		#i_Node2からi_Node1の接続を削除.
 		i_Node2.remove_connect(i_Node1)
-
-	def connect_node(self, i_Node1, i_Node2):
-		"""
-		@brief	2点間のノードを接続.
-		"""
-		#コスト=距離計算.
-		theCost = int(i_Node1.distance(i_Node2))
-
-		#接続.
-		i_Node1.connect_node(i_Node2, theCost)
-		i_Node2.connect_node(i_Node1, theCost)
 
 	def reset_node(self):
 		"""
@@ -320,6 +325,9 @@ if __name__ == "__main__":
 		def tearDown(self):
 			pass
 		def test_create(self):
+			"""
+			@brief	Edgeクラス生成のテストケース.
+			"""
 			theEdge = Edge(None, 0)
 			self.assertEqual(None, theEdge.node)
 			self.assertEqual(0, theEdge.cost)
@@ -333,6 +341,9 @@ if __name__ == "__main__":
 		def tearDown(self):
 			pass
 		def test_create(self):
+			"""
+			@brief	Nodeクラス生成のテストケース.
+			"""
 			theNode = Node()
 			self.assertEqual(0, theNode.x)
 			self.assertEqual(0, theNode.y)
@@ -503,11 +514,124 @@ if __name__ == "__main__":
 		def test_search_root(self):
 			"""
 			@brief	Dijkstra.search_root()のテストケース.
-			@note	TBA.未着手.
 			"""
-			pass
+			theAnswer=["Node[1 0]", "Node[1 1]", "Node[1 2]", "Node[1 3]", "Node[2 3]", "Node[3 3]", "Node[3 2]"]
+			theNodeList = test_dijkstra()
+			theResult=[]
+			for theNode in theNodeList:
+				theStr = "%s"%(theNode)
+				theResult.append(theStr)
+			self.assertEqual(theAnswer, theResult)
 
+	#########################################################
+	#Dijkstra法で最短ルート計算のテスト用.
+	#########################################################
+	class Road(Node):
+		pass
+	class Wall(Node):
+		pass
+	class Start(Road):
+		pass
+	class Goal(Road):
+		pass
+	def get_neighbor_list(i_Row, i_Col, i_BoardList):
+		"""
+		@brief	隣接Nodeを取得.
+		"""
+		theNeighborList = []
+
+		theRowRelativeList = [-1,  0,  1,  0]	#縦方向 相対位置. ("上右下左"の順で並んでいる）.
+		theColRelativeList = [ 0,  1,  0, -1]	#横方向 相対位置. ("上右下左"の順で並んでいる）.
+
+		for theIndex in range(0, 4):
+			theNeighborRow = i_Row + theRowRelativeList[theIndex]		#隣接Node 縦方向 Index.
+			theNeighborCol = i_Col + theColRelativeList[theIndex]		#隣接Node 横方向 Index.
+			theNeighbor = i_BoardList[theNeighborRow][theNeighborCol]	#隣接Nodeを取得.
+			theNeighborList.append(theNeighbor)
+		return theNeighborList
+
+	def make_dijkstra(i_RowMax, i_ColMax, i_BoardList):
+		"""
+		@brief	ダイクストラクラスを生成.
+		"""
+		theDijkstra = Dijkstra()
+
+		for theRow in range(0, i_RowMax):
+			for theCol in range(0, i_ColMax):
+				theNode = i_BoardList[theRow][theCol]
+
+				#Wallならば,ダイクストラにNodeを追加しない.
+				if( type(theNode) == type(Wall()) ): continue
+				#ダイクストラにNodeを追加.
+				theDijkstra.add_node(theNode)
+
+				#隣接Nodeを取得.
+				theNeighborList = get_neighbor_list(theRow, theCol, i_BoardList)
+
+				for theNeighbor in theNeighborList:
+					#Wallならば,リンクは作成しない.
+					if( type(theNeighbor) == type(Wall()) ): continue
+					#Node間をリンクさせる.
+					theDijkstra.connect_node(theNode, theNeighbor)
+
+		return theDijkstra
+
+	def test_dijkstra():
+		"""
+		@note	以下のように定義し、スタートからゴールまでの最短経路を求める.
+				4 X 4のます目を考える.
+				■：壁　スペース：道　ス：スタート　ゴ：ゴール
+				※ます目の境界は壁で余分に埋め尽くす. つまり6 X 6のます目が必要となる.
+
+				　　０１２３
+				　■■■■■■
+				０■　ス　■■
+				１■　　■　■
+				２■　　■ゴ■
+				３■　　　　■
+				　■■■■■■
+		"""
+		theBoard = [
+				[Wall(), Wall(), Wall(), Wall(), Wall(), Wall()],
+				[Wall(), Road(), Start(), Road(), Wall(), Wall()],
+				[Wall(), Road(), Road(), Wall(), Road(), Wall()],
+				[Wall(), Road(), Road(), Wall(), Goal(), Wall()],
+				[Wall(), Road(), Road(), Road(), Road(), Wall()],
+				[Wall(), Wall(), Wall(), Wall(), Wall(), Wall()],
+				]
+		#Nodeの座標を設定.
+		for theRow in range(0, 6):
+			for theCol in range(0, 6):
+				theNode = theBoard[theRow][theCol]
+				theNode.x = theCol - 1
+				theNode.y = theRow - 1
+
+		#ダイクストラ クラスを生成.
+		theDijkstra = make_dijkstra(6, 6, theBoard)
+		theDijkstra.start = theBoard[1][2]
+		theDijkstra.goal = theBoard[3][4]
+
+		#ルート探索.
+		theDijkstra.search_root()
+
+		theRouteList = []
+		theNode = theDijkstra.start
+		while(theNode != theDijkstra.goal):
+			theRouteList.append(theNode)
+			if(theNode != None):
+				theNode = theNode.toGoal
+			else:
+				break
+
+		theRouteList.append(theDijkstra.goal)
+		return theRouteList
+	#########################################################
+
+	#ダイクストラ法の最短ルート計算のテスト.
+	theRouteList = test_dijkstra()
+	for theNode in theRouteList: print("%s")%(theNode)
+
+	#ユニットテスト実行.
+	#unittest.main()
 
 	
-	#ユニットテスト実行.
-	unittest.main()
