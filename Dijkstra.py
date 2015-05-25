@@ -628,10 +628,10 @@ if __name__ == "__main__":
 	#########################################################
 
 	#ダイクストラ法の最短ルート計算のテスト.
-	theRouteList = test_dijkstra()
-	for theNode in theRouteList: print("%s")%(theNode)
+	#theRouteList = test_dijkstra()
+	#for theNode in theRouteList: print("%s")%(theNode)
 
 	#ユニットテスト実行.
-	#unittest.main()
+	unittest.main()
 
 	
