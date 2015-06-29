@@ -90,9 +90,16 @@
      </widget>
     </item>
     <item row="0" column="2">
-     <widget class="QPushButton" name="onceButton">
+     <widget class="QPushButton" name="openButton">
       <property name="text">
-       <string>Once</string>
+       <string>Open</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3">
+     <widget class="QPushButton" name="resetButton">
+      <property name="text">
+       <string>Reset</string>
       </property>
      </widget>
     </item>

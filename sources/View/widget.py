@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './GUI/widget.ui'
+# Form implementation generated from reading ui file './View/GUI/widget.ui'
 #
-# Created: Wed May 27 00:07:26 2015
+# Created: Mon Jun 29 22:39:55 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -46,9 +46,12 @@ class Ui_Widget(object):
         self.startButton = QtGui.QPushButton(self.gridLayoutWidget)
         self.startButton.setObjectName(_fromUtf8("startButton"))
         self.gridLayout.addWidget(self.startButton, 0, 0, 1, 1)
-        self.onceButton = QtGui.QPushButton(self.gridLayoutWidget)
-        self.onceButton.setObjectName(_fromUtf8("onceButton"))
-        self.gridLayout.addWidget(self.onceButton, 0, 2, 1, 1)
+        self.openButton = QtGui.QPushButton(self.gridLayoutWidget)
+        self.openButton.setObjectName(_fromUtf8("openButton"))
+        self.gridLayout.addWidget(self.openButton, 0, 2, 1, 1)
+        self.resetButton = QtGui.QPushButton(self.gridLayoutWidget)
+        self.resetButton.setObjectName(_fromUtf8("resetButton"))
+        self.gridLayout.addWidget(self.resetButton, 0, 3, 1, 1)
 
         self.retranslateUi(Widget)
         QtCore.QMetaObject.connectSlotsByName(Widget)
@@ -57,5 +60,6 @@ class Ui_Widget(object):
         Widget.setWindowTitle(_translate("Widget", "Widget", None))
         self.stopButton.setText(_translate("Widget", "Stop", None))
         self.startButton.setText(_translate("Widget", "Start", None))
-        self.onceButton.setText(_translate("Widget", "Once", None))
+        self.openButton.setText(_translate("Widget", "Open", None))
+        self.resetButton.setText(_translate("Widget", "Reset", None))
 
