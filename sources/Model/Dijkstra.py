@@ -177,11 +177,11 @@ class Edge(object):
 
 
 class Dijkstra(object):
-    __DEBUG__ = False
-
     """
     @brief    ダイクストラ法 クラス.
     """
+
+    __DEBUG__ = False
 
     def __init__(self):
         """
@@ -331,10 +331,10 @@ class Dijkstra(object):
         #検索第一階層のノードにゴールNodeを設定する.
         theCurrentLevel.append(self.goal)
 
-        while( 0!=len(theCurrentLevel) ):
-            for theNode in theCurrentLevel:
-                for theEdge in theNode.get_edge_list():
-                    theCost = theNode.cost + theEdge.cost
+        while( 0!=len(theCurrentLevel) ):                   #現在対象のNodeがなくなるまで
+            for theNode in theCurrentLevel:                 #現在対象のNode全て
+                for theEdge in theNode.get_edge_list():     #現在対象のNodeに接続されているNode全て
+                    theCost = theNode.cost + theEdge.cost   #現在対象のNodeと接続されているNodeのコストを足し合わせる
 
                     if( (theEdge.node.cost==-1) or (theCost<theEdge.node.cost) ):
                         #未探索Node or 最短ルートを更新できる場合.

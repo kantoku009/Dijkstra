@@ -1,14 +1,11 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
 
+#PyQt
 from PyQt4.QtCore import *
 
-from View.widget import Ui_Widget
-
-from Model.Dijkstra import Dijkstra
+#Model
 from Model.Dijkstra import Node
-from Model.Dijkstra import Edge
-
 
 class Hook(object):
     """
