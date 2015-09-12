@@ -17,7 +17,7 @@ GitHubのリポジトリと全ソースコードのダウンロードは以下UR
 使用方法を記す.  
 
 	ターミナルから以下を実行.
-		%python ./sources/main.py
+		%python main.py
 
 各ボタンの動作は以下を参照.
 
